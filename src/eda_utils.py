@@ -6,6 +6,95 @@ import seaborn as sns
 
 
 # ---------------------------------------------------------------------------
+# Data summarization
+# ---------------------------------------------------------------------------
+
+def descriptive_stats(df: pd.DataFrame) -> pd.DataFrame:
+    """Extended descriptive statistics for all numeric columns.
+
+    Supplements the standard ``describe()`` output with skewness, excess
+    kurtosis, zero-value count, and zero percentage — useful for spotting
+    heavy-tailed or zero-inflated distributions common in claims data.
+
+    Args:
+        df: Source DataFrame.
+
+    Returns:
+        DataFrame with one column per numeric feature and rows:
+        count, mean, std, min, 25%, 50%, 75%, max, skewness, kurtosis,
+        zeros, zeros_pct.
+    """
+    num_df = df.select_dtypes(include="number")
+    stats = num_df.describe().T
+    stats["skewness"] = num_df.skew()
+    stats["kurtosis"] = num_df.kurt()
+    stats["zeros"] = (num_df == 0).sum()
+    stats["zeros_pct"] = (stats["zeros"] / len(df) * 100).round(2)
+    return stats.T
+
+
+def dtype_review(df: pd.DataFrame) -> pd.DataFrame:
+    """Classify every column by its inferred semantic type and flag mismatches.
+
+    Columns are classified as one of: ``datetime``, ``boolean``,
+    ``numerical``, ``categorical``, or ``unknown``.  A mismatch is flagged
+    when the stored dtype does not match the expected semantic type — for
+    example a column stored as ``object`` that looks like it should be
+    numeric, or a date column still stored as a string.
+
+    Args:
+        df: Source DataFrame.
+
+    Returns:
+        DataFrame indexed by column name with columns ``stored_dtype``,
+        ``semantic_type``, and ``flag`` (empty string or a warning message).
+    """
+    records = []
+    for col in df.columns:
+        dtype = df[col].dtype
+        dtype_str = str(dtype)
+        flag = ""
+
+        if pd.api.types.is_datetime64_any_dtype(dtype):
+            semantic = "datetime"
+        elif pd.api.types.is_bool_dtype(dtype) or dtype_str == "boolean":
+            semantic = "boolean"
+        elif pd.api.types.is_numeric_dtype(dtype):
+            semantic = "numerical"
+            # boolean-like numeric (only 0/1 values)
+            unique = df[col].dropna().unique()
+            if set(unique).issubset({0, 1}):
+                flag = "looks boolean — consider casting"
+        elif dtype_str == "object":
+            sample = df[col].dropna().head(500)
+            semantic = "categorical"
+            if len(sample) == 0:
+                pass
+            else:
+                # try numeric first (higher confidence)
+                numeric_converted = pd.to_numeric(sample, errors="coerce")
+                if numeric_converted.notna().mean() > 0.9:
+                    flag = ">90% values numeric but stored as object"
+                else:
+                    # try datetime only when there are real non-null values
+                    try:
+                        parsed = pd.to_datetime(sample, errors="coerce")
+                        if parsed.notna().mean() > 0.8:
+                            flag = "may be datetime — consider pd.to_datetime"
+                    except Exception:
+                        pass
+        else:
+            semantic = "unknown"
+
+        records.append(
+            {"column": col, "stored_dtype": dtype_str,
+             "semantic_type": semantic, "flag": flag}
+        )
+
+    return pd.DataFrame(records).set_index("column")
+
+
+# ---------------------------------------------------------------------------
 # Univariate helpers
 # ---------------------------------------------------------------------------
 

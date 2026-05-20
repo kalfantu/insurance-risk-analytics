@@ -22,15 +22,15 @@ DTYPE_MAP = {
     "MainCrestaZone": str,
     "SubCrestaZone": str,
     "ItemType": str,
-    "Mmcode": str,
+    "mmcode": str,
     "VehicleType": str,
     "RegistrationYear": "Int64",
-    "Make": str,
+    "make": str,
     "Model": str,
     "Cylinders": "Int64",
-    "Cubiccapacity": "Int64",
-    "Kilowatts": "Int64",
-    "Bodytype": str,
+    "cubiccapacity": "Int64",
+    "kilowatts": "Int64",
+    "bodytype": str,
     "NumberOfDoors": "Int64",
     "VehicleIntroDate": str,
     "CustomValueEstimate": float,
@@ -72,7 +72,10 @@ def load_data(filepath: str, sep: str = "|") -> pd.DataFrame:
     df = pd.read_csv(
         filepath,
         sep=sep,
-        dtype={k: v for k, v in DTYPE_MAP.items() if v not in ("boolean", "Int64")},
+        dtype={
+            k: v for k, v in DTYPE_MAP.items()
+            if v not in ("boolean", "Int64", float)
+        },
         low_memory=False,
     )
 
@@ -80,9 +83,20 @@ def load_data(filepath: str, sep: str = "|") -> pd.DataFrame:
         if col not in df.columns:
             continue
         if dtype == "boolean":
-            df[col] = df[col].map({"Y": True, "N": False, True: True, False: False})
+            df[col] = df[col].map(
+                {"Y": True, "N": False, "True": True, "False": False,
+                 True: True, False: False}
+            )
         elif dtype == "Int64":
             df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+        elif dtype is float:
+            # normalise European comma decimals before converting
+            cleaned = (
+                df[col].astype(str)
+                .str.replace(",", ".", regex=False)
+                .str.strip()
+            )
+            df[col] = pd.to_numeric(cleaned, errors="coerce")
 
     if "TransactionMonth" in df.columns:
         df["TransactionMonth"] = pd.to_datetime(

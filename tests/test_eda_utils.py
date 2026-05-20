@@ -4,6 +4,8 @@ import pandas as pd
 import pytest
 
 from src.eda_utils import (
+    descriptive_stats,
+    dtype_review,
     loss_ratio_by_group,
     missing_summary_table,
     monthly_trend,
@@ -92,3 +94,54 @@ def test_monthly_trend_sum(policy_df):
 def test_monthly_trend_count(policy_df):
     trend = monthly_trend(policy_df, "TotalPremium", agg="count")
     assert trend["TotalPremium"].sum() == len(policy_df)
+
+
+# ---------------------------------------------------------------------------
+# descriptive_stats
+# ---------------------------------------------------------------------------
+
+def test_descriptive_stats_shape(policy_df):
+    stats = descriptive_stats(policy_df)
+    # rows are stat names, columns are numeric features
+    assert "TotalPremium" in stats.columns
+    assert "TotalClaims" in stats.columns
+
+
+def test_descriptive_stats_has_extended_rows(policy_df):
+    stats = descriptive_stats(policy_df)
+    for row in ("skewness", "kurtosis", "zeros", "zeros_pct"):
+        assert row in stats.index
+
+
+def test_descriptive_stats_zeros_pct_range(policy_df):
+    stats = descriptive_stats(policy_df)
+    for col in stats.columns:
+        assert 0.0 <= stats.loc["zeros_pct", col] <= 100.0
+
+
+# ---------------------------------------------------------------------------
+# dtype_review
+# ---------------------------------------------------------------------------
+
+def test_dtype_review_returns_expected_columns():
+    df = pd.DataFrame({"a": [1.0, 2.0], "b": ["x", "y"]})
+    review = dtype_review(df)
+    assert set(review.columns) == {"stored_dtype", "semantic_type", "flag"}
+
+
+def test_dtype_review_classifies_numeric():
+    df = pd.DataFrame({"premium": [100.0, 200.0]})
+    review = dtype_review(df)
+    assert review.loc["premium", "semantic_type"] == "numerical"
+
+
+def test_dtype_review_classifies_categorical():
+    df = pd.DataFrame({"province": ["Gauteng", "Western Cape"]})
+    review = dtype_review(df)
+    assert review.loc["province", "semantic_type"] == "categorical"
+
+
+def test_dtype_review_classifies_datetime():
+    df = pd.DataFrame({"ts": pd.to_datetime(["2015-01-01", "2015-02-01"])})
+    review = dtype_review(df)
+    assert review.loc["ts", "semantic_type"] == "datetime"
