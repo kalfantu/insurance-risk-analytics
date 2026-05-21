@@ -38,8 +38,11 @@ jobs:
         run: |
           # Stop the build if there are Python syntax errors or undefined names
           flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
-          # Warn on style issues (max line length 99, skip docstring checks in tests)
-          flake8 src/ tests/ --count --max-line-length=99 --statistics
+          # Style check: max line length 99, google docstrings, suppress D103/D104 in tests
+          flake8 src/ tests/ --count --max-line-length=99 \
+            --docstring-convention=google \
+            --per-file-ignores="tests/*.py:D100,D103,D104 src/__init__.py:D104" \
+            --statistics
 
       - name: Run tests with pytest
         run: |
