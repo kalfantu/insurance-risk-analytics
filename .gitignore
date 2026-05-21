@@ -4,17 +4,48 @@ data/
 # Python
 __pycache__/
 *.py[cod]
+*.so
+*.egg
 *.egg-info/
+dist/
+build/
+.eggs/
 .env
+.env.*
 venv/
 .venv/
+env/
 
 # Jupyter
 .ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Distribution / packaging
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Reports / outputs (keep structure, ignore generated files)
+reports/figures/
+reports/*.html
+
+# DVC internal
+.dvc/tmp/
+.dvc/cache/
