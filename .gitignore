@@ -1,5 +1,7 @@
-# Data (managed by DVC)
-data/
+# Data files (managed by DVC — .dvc pointer files are tracked by git)
+data/*.txt
+data/*.csv
+data/*.parquet
 
 # Python
 __pycache__/
