@@ -15,11 +15,12 @@ from src.data_loader import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
-SAMPLE_CSV = """UnderwrittenCoverID|PolicyID|TransactionMonth|TotalPremium|TotalClaims|Province|Gender
-1|101|2014-02-01|1200.0|300.0|Gauteng|Male
-2|102|2014-03-01|800.0|0.0|Western Cape|Female
-3|103|2014-04-01|0.0|500.0|KwaZulu-Natal|Male
-"""
+SAMPLE_CSV = (
+    "UnderwrittenCoverID|PolicyID|TransactionMonth|TotalPremium|TotalClaims|Province|Gender\n"
+    "1|101|2014-02-01|1200.0|300.0|Gauteng|Male\n"
+    "2|102|2014-03-01|800.0|0.0|Western Cape|Female\n"
+    "3|103|2014-04-01|0.0|500.0|KwaZulu-Natal|Male\n"
+)
 
 
 @pytest.fixture

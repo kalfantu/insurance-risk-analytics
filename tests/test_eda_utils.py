@@ -15,6 +15,7 @@ from src.eda_utils import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def policy_df():
     return pd.DataFrame(
