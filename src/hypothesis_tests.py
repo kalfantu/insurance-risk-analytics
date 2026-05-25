@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.stats import chi2_contingency, ttest_ind, mannwhitneyu
+from scipy.stats import chi2_contingency, ttest_ind
 from typing import Tuple, Dict, Any
 
 
