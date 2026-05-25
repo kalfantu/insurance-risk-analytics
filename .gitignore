@@ -51,3 +51,6 @@ reports/*.html
 # DVC internal
 .dvc/tmp/
 .dvc/cache/
+
+# Local backup
+backup/
