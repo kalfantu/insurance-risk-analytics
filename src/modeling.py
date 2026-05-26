@@ -109,8 +109,8 @@ def encode_features(df: pd.DataFrame) -> pd.DataFrame:
         out[col] = out[col].astype("category").cat.codes
 
     # Cast all columns to float32 — halves memory vs float64; XGBoost/sklearn both accept it
-    for col in out.select_dtypes(exclude="float32").columns:
-        out[col] = out[col].astype("float32")
+    for col in out.select_dtypes(exclude="float64").columns:
+        out[col] = out[col].astype(float)
 
     # Sanitize column names — XGBoost 3.x rejects special characters
     import re
