@@ -42,7 +42,7 @@ insurance-risk-analytics/
 ### Installation
 
 ```bash
-git clone https://github.com/KalkidanAsfaw/insurance-risk-analytics.git
+git clone https://github.com/kalfantu/insurance-risk-analytics.git
 cd insurance-risk-analytics
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
@@ -51,7 +51,10 @@ pip install -r requirements.txt
 
 ### Data Pipeline
 
-Data is versioned with [DVC](https://dvc.org/). The pipeline produces two dataset versions from the original source file:
+Data is versioned with [DVC](https://dvc.org/). Two dataset versions are tracked:
+
+- **`data/MachineLearningRating_v3.txt`** — the original source file, tracked via `data/MachineLearningRating_v3.txt.dvc` committed to Git.
+- **`data/insurance_data_cleaned.csv`** — the analysis-ready cleaned dataset, tracked as a pipeline output in `dvc.yaml` and locked in `dvc.lock`.
 
 | Version | File | Description |
 |---|---|---|
